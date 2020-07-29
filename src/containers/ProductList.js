@@ -47,7 +47,7 @@ const ProductList = () => {
     try {
       productDispatch({ type: 'SET_LOADING', loading: true })
       const response = await fetch(
-        'http://www.mocky.io/v2/5c9105cb330000112b649af8'
+        'https://www.mocky.io/v2/5c9105cb330000112b649af8'
       )
       const { products } = await response.json()
       productDispatch({ type: 'FETCH_PRODUCT', products })
