@@ -31,14 +31,15 @@ const ProductList = () => {
       {}
     )
   })
+  const [displayProducts, setDisplayProducts] = React.useState([])
 
   React.useEffect(() => {
     fetchProducts()
   }, [])
 
   React.useEffect(() => {
-    console.log(product.filter)
-  }, [product.filter])
+    filterProducts(product.products, product.filter)
+  }, [product.products, product.filter])
 
   const fetchProducts = async () => {
     try {
@@ -53,6 +54,29 @@ const ProductList = () => {
       console.error(e)
       productDispatch({ type: 'SET_LOADING', loading: false })
     }
+  }
+
+  const filterProducts = (savedProduct, savedFilter) => {
+    let filteredProducts = savedProduct
+
+    if (savedFilter) {
+      const { styles, deliveryTime } = savedFilter
+      filteredProducts = product.products.filter(item => {
+        const matchedStyle =
+          styles.length > 0
+            ? item.furniture_style.some(style => styles.includes(style))
+            : true
+
+        const matchedDeliveryTime =
+          deliveryTime.length > 0
+            ? deliveryTime.some(time => parseInt(item.delivery_time) <= time)
+            : true
+
+        return matchedStyle && matchedDeliveryTime
+      })
+    }
+
+    setDisplayProducts(filteredProducts)
   }
 
   const handleCheckboxChange = e => {
@@ -133,7 +157,7 @@ const ProductList = () => {
       {product.loading && <div className="mt-3">Loading...</div>}
       {!product.loading && (
         <div className="mt-3">
-          {product.products.map((prdct, index) => (
+          {displayProducts.map((prdct, index) => (
             <ProductCard key={index} product={prdct} />
           ))}
         </div>
