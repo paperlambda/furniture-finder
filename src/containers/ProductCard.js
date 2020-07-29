@@ -16,14 +16,14 @@ const ProductCard = ({ product }) => (
         </div>
       ))}
     </div>
-    <div>
+    <div className="my-1">
       <div className="text-xs text-gray-600">Delivery Time</div>
       <div className="text-sm">{product.delivery_time} days</div>
     </div>
-    <button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
-      Buy
-    </button>
-    <div className="hidden">{product.description}</div>
+    <div className="my-1">
+      <div className="text-xs text-gray-600">Description</div>
+      <div className="text-xs">{product.description}</div>
+    </div>
   </div>
 )
 
