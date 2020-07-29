@@ -1,6 +1,7 @@
 import React from 'react'
 import { deliveryTimes, furnitureStyles } from '@/constants'
 import ProductCard from '@/containers/ProductCard'
+import stringMatcher from '@/utils/string-matcher'
 
 const productReducer = (state, action) => {
   switch (action.type) {
@@ -32,6 +33,7 @@ const ProductList = () => {
     )
   })
   const [displayProducts, setDisplayProducts] = React.useState([])
+  const [searchQuery, setQuery] = React.useState('')
 
   React.useEffect(() => {
     fetchProducts()
@@ -60,8 +62,11 @@ const ProductList = () => {
     let filteredProducts = savedProduct
 
     if (savedFilter) {
-      const { styles, deliveryTime } = savedFilter
+      const { styles, deliveryTime, search } = savedFilter
       filteredProducts = product.products.filter(item => {
+        const likelyMatchedName =
+          search !== '' ? stringMatcher(search, item.name) : true
+
         const matchedStyle =
           styles.length > 0
             ? item.furniture_style.some(style => styles.includes(style))
@@ -72,11 +77,16 @@ const ProductList = () => {
             ? deliveryTime.some(time => parseInt(item.delivery_time) <= time)
             : true
 
-        return matchedStyle && matchedDeliveryTime
+        return likelyMatchedName && matchedStyle && matchedDeliveryTime
       })
     }
 
     setDisplayProducts(filteredProducts)
+  }
+
+  const handleSearchChange = e => {
+    const { value } = e.target
+    setQuery(value)
   }
 
   const handleCheckboxChange = e => {
@@ -96,7 +106,10 @@ const ProductList = () => {
           .map(entry => entry[0])
       }
     }, {})
-    productDispatch({ type: 'APPLY_FILTER', filter: getFilter })
+    productDispatch({
+      type: 'APPLY_FILTER',
+      filter: { ...getFilter, search: searchQuery }
+    })
   }
 
   return (
@@ -104,6 +117,7 @@ const ProductList = () => {
       <div className="py-2">
         <div>
           <input
+            onChange={handleSearchChange}
             className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-2 px-3 mb-1 leading-tight focus:outline-none focus:bg-white"
             type="text"
             placeholder="Search furniture name e.g Jobi, Arsa"
