@@ -1,7 +1,46 @@
 import React from 'react'
 import { filterOptions, furnitureStyles } from '@/constants'
+import ProductCard from '@/containers/ProductCard'
+
+const productReducer = (state, action) => {
+  switch (action.type) {
+    case 'FETCH_PRODUCT':
+      return { ...state, products: action.products }
+    case 'APPLY_FILTER':
+      return { ...state, filter: action.filter }
+    case 'SET_LOADING':
+      return { ...state, loading: action.loading }
+    default:
+      return state
+  }
+}
 
 const ProductList = () => {
+  const [product, productDispatch] = React.useReducer(productReducer, {
+    products: [],
+    filter: null,
+    loading: false
+  })
+
+  React.useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      productDispatch({ type: 'SET_LOADING', loading: true })
+      const response = await fetch(
+        'http://www.mocky.io/v2/5c9105cb330000112b649af8'
+      )
+      const { products } = await response.json()
+      productDispatch({ type: 'FETCH_PRODUCT', products })
+      productDispatch({ type: 'SET_LOADING', loading: false })
+    } catch (e) {
+      console.error(e)
+      productDispatch({ type: 'SET_LOADING', loading: false })
+    }
+  }
+
   return (
     <div>
       <div className="py-2">
@@ -42,36 +81,18 @@ const ProductList = () => {
             </label>
           ))}
         </div>
+        <button className="w-full bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded mt-2 text-md">
+          Apply filter
+        </button>
       </div>
-
-      <div>
-        <div className="border border-gray-400 rounded-md px-4 py-2 mb-3">
-          <div className="text-lg">Sofa L Jobi</div>
-          <div className="text-xl font-bold mb-1">Rp. 5.000.000</div>
-          <div className="my-2">
-            <div className="inline-block text-xs rounded bg-gray-200 text-black px-2 mr-2">
-              Classic
-            </div>
-            <div className="inline-block text-xs rounded bg-gray-200 text-black px-2 mr-2">
-              Midcentury
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-600">Delivery Time</div>
-            <div className="text-sm">14 days</div>
-          </div>
-          <button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
-            Buy
-          </button>
-          <div className="hidden">
-            Selama Anda dapat berkumpul bersama keluarga dan orang-orang
-            terdekat, duduk di manapun mungkin rasanya tidak menjadi masalah
-            untuk Anda. Akan tetapi, dengan berkumpul bersama menggunakan Jobi L
-            Sofa, suasana quality time Anda akan terasa 180 derajat
-            perubahannya.
-          </div>
+      {product.loading && <div className="mt-3">Loading...</div>}
+      {!product.loading && (
+        <div className="mt-3">
+          {product.products.map((prdct, index) => (
+            <ProductCard key={index} product={prdct} />
+          ))}
         </div>
-      </div>
+      )}
     </div>
   )
 }
