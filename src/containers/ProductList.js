@@ -74,7 +74,7 @@ const ProductList = () => {
 
         const matchedDeliveryTime =
           deliveryTime.length > 0
-            ? deliveryTime.some(time => parseInt(item.delivery_time) <= time)
+            ? findByDeliveryTime(item.delivery_time, deliveryTime)
             : true
 
         return likelyMatchedName && matchedStyle && matchedDeliveryTime
@@ -82,6 +82,15 @@ const ProductList = () => {
     }
 
     setDisplayProducts(filteredProducts)
+  }
+
+  const findByDeliveryTime = (time, list) => {
+    let moreThanOneMonth = false
+    if (list.includes('0')) {
+      moreThanOneMonth = parseInt(time) > 31
+    }
+
+    return moreThanOneMonth || list.some(tm => parseInt(time) <= tm)
   }
 
   const handleSearchChange = e => {
