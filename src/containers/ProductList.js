@@ -1,5 +1,5 @@
 import React from 'react'
-import { filterOptions, furnitureStyles } from '@/constants'
+import { deliveryTimes, furnitureStyles } from '@/constants'
 import ProductCard from '@/containers/ProductCard'
 
 const productReducer = (state, action) => {
@@ -21,10 +21,24 @@ const ProductList = () => {
     filter: null,
     loading: false
   })
+  const [filters, setFilters] = React.useState({
+    styles: furnitureStyles.reduce(
+      (styles, style) => ({ ...styles, [style]: false }),
+      {}
+    ),
+    deliveryTime: deliveryTimes.reduce(
+      (times, time) => ({ ...times, [time.value]: false }),
+      {}
+    )
+  })
 
   React.useEffect(() => {
     fetchProducts()
   }, [])
+
+  React.useEffect(() => {
+    console.log(product.filter)
+  }, [product.filter])
 
   const fetchProducts = async () => {
     try {
@@ -41,6 +55,26 @@ const ProductList = () => {
     }
   }
 
+  const handleCheckboxChange = e => {
+    const { name, value } = e.target
+    setFilters({
+      ...filters,
+      [name]: { ...filters[name], [value]: !filters[name][value] }
+    })
+  }
+
+  const submitFilterForm = () => {
+    const getFilter = Object.keys(filters).reduce((acc, obj) => {
+      return {
+        ...acc,
+        [obj]: Object.entries(filters[obj])
+          .filter(([_, value]) => value === true)
+          .map(entry => entry[0])
+      }
+    }, {})
+    productDispatch({ type: 'APPLY_FILTER', filter: getFilter })
+  }
+
   return (
     <div>
       <div className="py-2">
@@ -53,7 +87,7 @@ const ProductList = () => {
         </div>
         <div className="text-xs text-gray-600">Delivery time</div>
         <div className="flex align-center mb-2">
-          {filterOptions.map((filter, index) => (
+          {deliveryTimes.map((filter, index) => (
             <label
               className="py-1 mr-4 text-sm"
               key={index}
@@ -63,6 +97,8 @@ const ProductList = () => {
                 value={filter.value}
                 id={`filter-${index}`}
                 type="checkbox"
+                name="deliveryTime"
+                onChange={handleCheckboxChange}
               />{' '}
               {filter.label}
             </label>
@@ -76,12 +112,21 @@ const ProductList = () => {
               key={index}
               htmlFor={`style-${fStyle}`}
             >
-              <input value={fStyle} id={`style-${fStyle}`} type="checkbox" />{' '}
+              <input
+                name="styles"
+                value={fStyle}
+                id={`style-${fStyle}`}
+                type="checkbox"
+                onChange={handleCheckboxChange}
+              />{' '}
               {fStyle}
             </label>
           ))}
         </div>
-        <button className="w-full bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded mt-2 text-md">
+        <button
+          onClick={submitFilterForm}
+          className="w-full bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded mt-2 text-md"
+        >
           Apply filter
         </button>
       </div>

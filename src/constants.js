@@ -1,4 +1,4 @@
-export const filterOptions = [
+export const deliveryTimes = [
   {
     label: '1 week',
     value: 7
@@ -13,7 +13,7 @@ export const filterOptions = [
   },
   {
     label: '> 1 month',
-    value: -1
+    value: 0
   }
 ]
 
